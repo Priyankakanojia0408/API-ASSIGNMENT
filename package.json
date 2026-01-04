@@ -1,0 +1,30 @@
+{
+  "name": "api-assignment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Priyankakanojia0408/API-ASSIGNMENT.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Priyankakanojia0408/API-ASSIGNMENT/issues"
+  },
+  "homepage": "https://github.com/Priyankakanojia0408/API-ASSIGNMENT#readme",
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "vite": "^7.3.0"
+  }
+}
