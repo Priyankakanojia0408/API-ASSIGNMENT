@@ -22,7 +22,8 @@
   "homepage": "https://github.com/Priyankakanojia0408/API-ASSIGNMENT#readme",
   "dependencies": {
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^7.11.0"
   },
   "devDependencies": {
     "vite": "^7.3.0"
