@@ -2,56 +2,51 @@ import React, { useState, useEffect } from "react";
 import "./TriviaGame.css";
 
 function TriviaGame() {
-  // ✅ Sample Apipheny-style trivia data
-  const sampleTriviaQuestions = [
-    {
-      question: "Which planet is known as the Red Planet?",
-      correct_answer: "Mars",
-      incorrect_answers: ["Venus", "Jupiter", "Saturn"],
-    },
-    {
-      question: "What is the largest mammal in the world?",
-      correct_answer: "Blue Whale",
-      incorrect_answers: ["Elephant", "Giraffe", "Hippopotamus"],
-    },
-    {
-      question: "Who painted the Mona Lisa?",
-      correct_answer: "Leonardo da Vinci",
-      incorrect_answers: [
-        "Vincent van Gogh",
-        "Pablo Picasso",
-        "Michelangelo",
-      ],
-    },
-    {
-      question: "Which gas do plants absorb from the atmosphere?",
-      correct_answer: "Carbon Dioxide",
-      incorrect_answers: ["Oxygen", "Nitrogen", "Helium"],
-    },
-    {
-      question: "What is the capital of France?",
-      correct_answer: "Paris",
-      incorrect_answers: ["London", "Berlin", "Madrid"],
-    },
-  ];
-
   const [questionData, setQuestionData] = useState(null);
+  const [answers, setAnswers] = useState([]);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [feedback, setFeedback] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // ✅ Load first question when component mounts
   useEffect(() => {
-    loadRandomQuestion();
+    fetchTrivia();
   }, []);
 
-  // ✅ Pick a random question (mini-game logic)
-  function loadRandomQuestion() {
-    const randomIndex = Math.floor(
-      Math.random() * sampleTriviaQuestions.length
-    );
-    setQuestionData(sampleTriviaQuestions[randomIndex]);
-    setSelectedAnswer(null);
+  async function fetchTrivia() {
+    setLoading(true);
+    setError("");
     setFeedback("");
+    setSelectedAnswer(null);
+    setQuestionData(null);
+
+    try {
+      const response = await fetch(
+        "https://opentdb.com/api.php?amount=1&type=multiple"
+      );
+
+      if (!response.ok) {
+        throw new Error("API limit reached");
+      }
+
+      const data = await response.json();
+
+      const question = data.results[0];
+      setQuestionData(question);
+
+      const shuffledAnswers = [
+        question.correct_answer,
+        ...question.incorrect_answers,
+      ].sort(() => Math.random() - 0.5);
+
+      setAnswers(shuffledAnswers);
+    } catch (err) {
+      setError(
+        "Failed to fetch trivia question. Please wait a moment and try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleAnswerClick(answer) {
@@ -64,37 +59,40 @@ function TriviaGame() {
     }
   }
 
-  // ✅ Prevent crash before data exists
-  if (!questionData) {
-    return <p>Loading trivia...</p>;
-  }
-
-  const answers = [
-    questionData.correct_answer,
-    ...questionData.incorrect_answers,
-  ].sort(() => Math.random() - 0.5);
-
   return (
     <div className="trivia-container">
       <h1>Trivia Game</h1>
 
-      <p>{questionData.question}</p>
+      {loading && <p>Loading question...</p>}
 
-      {answers.map((answer, index) => (
-        <button
-          key={index}
-          onClick={() => handleAnswerClick(answer)}
-          disabled={selectedAnswer !== null}
-        >
-          {answer}
-        </button>
-      ))}
+      {error && <p className="error">{error}</p>}
 
-      {feedback && <p className="feedback">{feedback}</p>}
+      {!loading && !error && questionData && (
+        <>
+          <p
+            dangerouslySetInnerHTML={{ __html: questionData.question }}
+          />
 
-      <button onClick={loadRandomQuestion} style={{ marginTop: "20px" }}>
-        Next Question
-      </button>
+          {answers.map((answer, index) => (
+            <button
+              key={index}
+              onClick={() => handleAnswerClick(answer)}
+              disabled={selectedAnswer !== null}
+              dangerouslySetInnerHTML={{ __html: answer }}
+            />
+          ))}
+
+          {feedback && <p className="feedback">{feedback}</p>}
+
+          <button
+            onClick={fetchTrivia}
+            disabled={loading}
+            style={{ marginTop: "20px" }}
+          >
+            Next Question
+          </button>
+        </>
+      )}
     </div>
   );
 }
